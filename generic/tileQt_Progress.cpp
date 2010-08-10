@@ -166,7 +166,7 @@ static void ProgressBarElementDraw(
 #endif /* TILEQT_QT_VERSION_4 */
       if (!determinate) {
         widget.resize(b.width, height);
-        percentage = 1.0;
+        percentage = 100.0;
         width = b.width;
         dest_x = b.x;
       } else {
@@ -180,7 +180,7 @@ static void ProgressBarElementDraw(
 #ifdef TILEQT_QT_VERSION_4
         widget.resize(b.width, height);
 #endif /* TILEQT_QT_VERSION_4 */
-        percentage = 1.0;
+        percentage = 100.0;
         height = b.height;
         dest_y = b.y;
       } else {

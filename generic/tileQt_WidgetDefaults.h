@@ -13,9 +13,9 @@
  * Aghia Paraskevi, 153 10, Athens, Greece.
  */
 
-#define DEFAULT_BORDERWIDTH "2"
-#define DEFAULT_ARROW_SIZE "15"
-#define MIN_THUMB_SIZE 8
+#define DEFAULT_BORDERWIDTH            "2"
+#define DEFAULT_ARROW_SIZE             "15"
+#define MIN_THUMB_SIZE                  14
 #define BorderBorderWidth              "0"
 #define PushButtonUniformPadding        3
 #define RadioButtonHorizontalPadding    20
