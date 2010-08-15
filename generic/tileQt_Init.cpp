@@ -159,15 +159,6 @@ int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
 
 int Tileqt_SetPalette(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
-  static const char *Methods[] = {
-    "-background",       "-foreground",
-    "-buttonBackground", "-buttonForeground",
-    "-selectBackground", "-selectForeground",
-    "-windowBackground", "-windowForeground",
-    "-linkColor",        "-visitedLinkColor",
-    "-contrast",
-    (char *) NULL
-  };
   enum methods {
     CLR_background,       CLR_foreground,
     CLR_buttonBackground, CLR_buttonForeground,
@@ -176,8 +167,6 @@ int Tileqt_SetPalette(ClientData clientData, Tcl_Interp *interp,
     CLR_linkColor,        CLR_visitedLinkColor,
     CLR_contrast
   };
-  int index, contrast_;
-  char *value;
   if ((objc-1)%2) {
     Tcl_WrongNumArgs(interp, 1, objv, "?-key value?");
     return TCL_ERROR;
@@ -550,7 +539,6 @@ Tileqt_Init(Tcl_Interp *interp)
 
     themePtr  = Ttk_CreateTheme(interp, "tileqt", NULL);
     if (!themePtr) return TCL_ERROR;
-
     /*
      * Initialise Qt:
      */
@@ -617,7 +605,7 @@ Tileqt_Init(Tcl_Interp *interp)
     }
     strcat(tmpScript, " };");
     Tcl_MutexUnlock(&tileqtMutex);
-    
+    /* This will run library/tileqt.tcl */
     if (Tcl_Eval(interp, tmpScript) != TCL_OK) {
       return TCL_ERROR;
     }
@@ -626,6 +614,68 @@ Tileqt_Init(Tcl_Interp *interp)
     }
     Tcl_PkgProvide(interp, "ttk::theme::tileqt", PACKAGE_VERSION);
     Tcl_PkgProvide(interp, PACKAGE_NAME, PACKAGE_VERSION);
+    int     rBG, gBG, bBG, rFG, gFG, bFG,
+            rABG, gABG, bABG, rSC, gSC, bSC,
+            rAFG, gAFG, bAFG, rHLBG, gHLBG, bHLBG,
+            rSBG, gSBG, bSBG, rHLC, gHLC, bHLC,
+            rSFG, gSFG, bSFG, rDFG, gDFG, bDFG,
+            rIBG, gIBG, bIBG, rTC, gTC, bTC;
+
+    // Active colors (they are synonyms for normal in Qt 4)
+    // For Tk they mean what happens when a button is under mouse
+    qApp->palette().setCurrentColorGroup(QPalette::Active);
+    //activeBackground
+    qApp->palette().window().color().getRgb(&rABG, &gABG, &bABG);
+    //activeForeground
+    qApp->palette().windowText().color().getRgb(&rAFG, &gAFG, &bAFG);
+
+    // Inactive colors
+    qApp->palette().setCurrentColorGroup(QPalette::Inactive);
+
+    // Disabled colors
+    qApp->palette().setCurrentColorGroup(QPalette::Disabled);
+    //disabledForeground
+    qApp->palette().windowText().color().getRgb(&rDFG, &gDFG, &bDFG);
+
+    // Normal colors
+    qApp->palette().setCurrentColorGroup(QPalette::Normal);
+    //background
+    qApp->palette().window().color().getRgb(&rBG, &gBG, &bBG);
+    //foreground
+    qApp->palette().windowText().color().getRgb(&rFG, &gFG, &bFG);
+    //highlightBackground (in fact the border around inactive buttons/fields)
+    qApp->palette().dark().color().getRgb(&rHLBG, &gHLBG, &bHLBG);
+    //highlightColor (border around active buttons)
+    qApp->palette().highlight().color().getRgb(&rHLC, &gHLC, &bHLC);
+    //selectForeground
+    qApp->palette().highlightedText().color().getRgb(&rSFG, &gSFG, &bSFG);
+    //selectBackground
+    qApp->palette().highlight().color().getRgb(&rSBG, &gSBG, &bSBG);
+    //troughColor (comboboxes, scales, arrow backgrounds)
+    qApp->palette().button().color().getRgb(&rTC, &gTC, &bTC);
+    //insertBackground (cursor)
+    qApp->palette().windowText().color().getRgb(&rIBG, &gIBG, &bIBG);
+
+    //selectColor - no idea what this is
+    //qApp->palette().highlightedText().color().getRgb(&rSC, &gSC, &bSC);
+    rSC=255; gSC=0; bSC=0;
+
+    char cBuf[512];
+    sprintf(cBuf, "tk_setPalette background #%02x%02x%02x "
+            "foreground #%02x%02x%02x activeBackground #%02x%02x%02x "
+            "selectColor #%02x%02x%02x activeForeground #%02x%02x%02x "
+            "highlightBackground #%02x%02x%02x selectBackground #%02x%02x%02x "
+            "highlightColor #%02x%02x%02x selectForeground #%02x%02x%02x "
+            "disabledForeground #%02x%02x%02x insertBackground #%02x%02x%02x "
+            "troughColor #%02x%02x%02x", rBG, gBG, bBG, rFG, gFG, bFG,
+            rABG, gABG, bABG, rSC, gSC, bSC,
+            rAFG, gAFG, bAFG, rHLBG, gHLBG, bHLBG,
+            rSBG, gSBG, bSBG, rHLC, gHLC, bHLC,
+            rSFG, gSFG, bSFG, rDFG, gDFG, bDFG,
+            rIBG, gIBG, bIBG, rTC, gTC, bTC);
+
+    Tcl_Eval(interp, cBuf);
+
     return TCL_OK;
 }; /* TileQt_Init */
 

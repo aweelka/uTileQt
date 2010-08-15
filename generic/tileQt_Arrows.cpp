@@ -13,7 +13,6 @@
  * Aghia Paraskevi, 153 10, Athens, Greece.
  */
 
-#include "tileQt_Utilities.h"
 #include "tileQt_TkHeaders.h"
 #include "tileQt_WidgetDefaults.h"
 

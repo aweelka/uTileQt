@@ -82,7 +82,7 @@ static Ttk_ElementOptionSpec BorderElementOptions[] = {
 	Tk_Offset(BorderElement,reliefObj), "flat" },
     {NULL}
 };
-
+  
 static void BorderElementGeometry(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
@@ -109,16 +109,16 @@ static void BorderElementDraw(
 
     Tcl_GetIntFromObj(NULL, border->borderWidthObj, &borderWidth);
     Tk_GetReliefFromObj(NULL, border->reliefObj, &relief);
-    QStyle::SFlags sflags;
+    QStyle::State sflags;
 
     switch (relief) {
 	case TK_RELIEF_GROOVE :
 	case TK_RELIEF_RIDGE :
 	case TK_RELIEF_RAISED :
-            sflags |= QStyle::Style_Raised;
+            sflags |= QStyle::State_Raised;
 	    break;
 	case TK_RELIEF_SUNKEN :
-            sflags |= QStyle::Style_Sunken;
+            sflags |= QStyle::State_Sunken;
 	    break;
 	case TK_RELIEF_FLAT :
 	    break;
@@ -128,19 +128,36 @@ static void BorderElementDraw(
 
     QPixmap      pixmap(b.width, b.height);
     QPainter     painter(&pixmap);
-    if (wc->TileQt_QPixmap_BackgroundTile &&
-        !(wc->TileQt_QPixmap_BackgroundTile->isNull())) {
+    if (!(wc->TileQt_QPixmap_BackgroundTile.isNull())) {
         painter.fillRect(0, 0, b.width, b.height,
                          QBrush(QColor(255,255,255),
-                         *(wc->TileQt_QPixmap_BackgroundTile)));
+                         (wc->TileQt_QPixmap_BackgroundTile)));
     } else {
         painter.fillRect(0, 0, b.width, b.height,
+			 #ifdef TILEQT_QT_VERSION_3
                          qApp->palette().active().background());
+			 #endif /*TILEQT_QT_VERSION_3*/
+			 #ifdef TILEQT_QT_VERSION_4
+			 QColor(0, 0, 0, 0)); //qApp->palette().window()); //palette().paletteBackgroundColor());
+			 #endif /*TILEQT_QT_VERSION_4*/
     }
     if (borderWidth) {
+      #ifdef TILEQT_QT_VERSION_3  
       wc->TileQt_Style->drawPrimitive(QStyle::PE_GroupBoxFrame, &painter,
-            QRect(0, 0, b.width, b.height), qApp->palette().active(), sflags,
-            QStyleOption(borderWidth, 0));
+            QRect(0, 0, b.width, b.height), 
+                  qApp->palette().active(), //sflags, 
+		      QStyleOption(borderWidth, 0));
+      #endif /*TILEQT_QT_VERSION_3*/
+      //inQt3: QStyle::drawPrimitive(QStyle::PrimitiveElement, QPainter*, QRect, const QBrush&, QStyleOption
+      #ifdef TILEQT_QT_VERSION_4
+      //in QT4: virtual void QStyle::drawPrimitive(QStyle::PrimitiveElement, const QStyleOption*, QPainter*, const QWidget*) const
+      QStyleOption qso(borderWidth, 0);
+      //QRect qr(0, 0, b.width, b.height);
+      wc->TileQt_Style->drawPrimitive(QStyle::PE_FrameGroupBox, &qso, &painter,
+	    NULL//, 
+		//qApp->palette().toolTipBase(), //sflags
+		    );
+      #endif /*TILEQT_QT_VERSION_4*/
     }
     TileQt_CopyQtPixmapOnToDrawable(pixmap, d, tkwin,
                                     0, 0, b.width, b.height, b.x, b.y);

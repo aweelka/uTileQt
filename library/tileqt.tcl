@@ -649,6 +649,7 @@ namespace eval ttk::theme::tileqt {
   ## Update layouts on load...
   updateLayouts
   updateStyles
+  updateColourPalette
 
   ## Test the theme configuration panel...
   if {0 && ![info exists ::testConfigurationPanel]} {

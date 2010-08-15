@@ -109,54 +109,6 @@ static Ttk_StateTable treeview_client_statemap[] =
 typedef struct {
 } TreeViewClientElement;
 
-
-static Ttk_ElementOptionSpec TreeViewClientElementOptions[] = {
-    {NULL}
-};
-
-static void TreeViewClientElementGeometry(
-    void *clientData, void *elementRecord, Tk_Window tkwin,
-    int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
-{
-    if (qApp == NULL) NULL_Q_APP;
-    *paddingPtr = Ttk_UniformPadding(0);
-}
-
-static void TreeViewClientElementDraw(
-    void *clientData, void *elementRecord, Tk_Window tkwin,
-    Drawable d, Ttk_Box b, unsigned state)
-{
-    if (qApp == NULL) NULL_Q_APP;
-    NULL_PROXY_WIDGET(TileQt_QWidget_Widget);
-    Tcl_MutexLock(&tileqtMutex);
-    QPixmap      pixmap(b.width, b.height);
-    QPainter     painter(&pixmap);
-    TILEQT_PAINT_BACKGROUND_BASE(b.width, b.height);
-#if 0
-#ifdef TILEQT_QT_VERSION_4
-    QStyleOptionFrame option;
-    option.rect = QRect(0, 0, b.width, b.height);
-    option.lineWidth = 1;
-    option.state |= (QStyle::StateFlag) 
-                    TileQt_StateTableLookup(treeview_client_statemap, state);
-    wc->TileQt_Style->drawPrimitive(QStyle::PE_FrameGroupBox, &option,
-                                    &painter);
-#endif /* TILEQT_QT_VERSION_4 */
-#endif
-    // printf("x=%d, y=%d, w=%d, h=%d\n", b.x, b.y, b.width, b.height);
-    TileQt_CopyQtPixmapOnToDrawable(pixmap, d, tkwin,
-                                    0, 0, b.width, b.height, b.x, b.y);
-    Tcl_MutexUnlock(&tileqtMutex);
-}
-
-static Ttk_ElementSpec TreeViewClientElementSpec = {
-    TK_STYLE_VERSION_2,
-    sizeof(TreeViewClientElement),
-    TreeViewClientElementOptions,
-    TreeViewClientElementGeometry,
-    TreeViewClientElementDraw
-};
-
 /*------------------------------------------------------------------------
  * +++ TreeView Header Border Element.
  */
